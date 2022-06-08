@@ -1,0 +1,66 @@
+LIBEPP-NICBR
+Copyright (C) 2006 Registro.br. All rights reserved.
+
+About This Software
+-------------------
+
+This is the LIBEPP-NICBR C++ library that partially implements the
+Extensible Provisioning Protocol (EPP), as described in the Internet
+drafts RFC3730bis to RFC3734bis and RFC3735.
+
+RFC3731bis - EPP Domain Name Mapping - was implemented with hosts as
+attributes of the Domain Object.
+
+In order to conform to the .BR model, extensions to the EPP Domain
+Name and Contact Mapping were made (draft-neves-epp-brdomain and
+draft-neves-epp-brorg), supported since version 0.2. The documentation
+for these extensions is available at EPP References.
+
+The source code was developed on FreeBSD 5.4 with gcc 3.4.2.
+
+Although most of the development was made on FreeBSD, we found no
+problems compiling the library and running the tests on Linux (tested
+on Debian GNU/Linux 3.1 and on Ubuntu Linux 5 and 6). Starting from
+version 1.5 of the library we were also successful in compiling it on
+MacOS X 10.4.
+
+Comments can be sent to <libepp at registro.br>.
+Further information at http://registro.br/epp/
+
+
+Restrictions
+------------
+
+- This release does not implement the transfer and delete commands for
+  any object, nor it implements RFC3732bis - EPP Host Mapping.
+
+- Certificate validation not available.
+
+
+Known Issues
+------------
+
+- Environment is assumed to set "ISO8859-1" as character encoding. The
+  absence of this setting can cause some tests to fail.
+  e.g.: LANG=en_US.ISO8859-1.
+
+- The libepp-nicbr might not work as expected with OpenSSL 0.9.8 or
+  greater versions.
+
+
+Brief Overview
+--------------
+
+include/   - All library header files
+
+src/lib/   - EPP classes implementation
+
+src/shepp/ - Interactive EPP shell client; type "?" inside it for online help
+
+samples/   - A simple fully-commented sample client application
+
+docs/      - XML schemas and templates for all implemented commands
+
+lib/       - Where compiled libraries stay
+
+unit_test/ - UnitTests for all library classes; also provide usage samples

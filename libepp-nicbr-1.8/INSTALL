@@ -1,0 +1,74 @@
+LIBEPP-NICBR
+Copyright (C) 2006 Registro.br. All rights reserved.
+
+Requirements
+------------
+
+In order to compile this library, you need the following software
+installed:
+
+* A C++ compiler, preferably gcc.
+  WARNING: version 2.x is NOT supported. All of our tests were
+           performed with gcc 3.4 or greater.
+* OpenSSL 0.9.7* (The software was built with release 0.9.7e)
+* Xerces-C 2.x or 3.x
+
+For shepp to be built you must have the readline library installed
+(successfully compiled with version 4.3).
+
+To run make doc, you need Doxygen installed (successfully run with
+Doxygen version 1.4.6).
+
+To run the UnitTest programs, you need CppUnit installed (successfully
+run with CppUnit version 1.10.2).
+
+
+For the Impatient
+-----------------
+
+./configure
+make
+make install
+
+
+Detailed Building Instructions
+------------------------------
+
+1) Make sure OpenSSL and Xerces-C are installed.
+
+2) If you want to run the tests, make sure CppUnit is installed.
+
+3) If you want shepp to be built, make sure the your system has the
+   readline library installed.
+
+4) Run ./configure. This will search for required dependencies in your
+   system and create the Makefiles.
+
+   configure will look for OpenSSL headers first in
+   /usr/local/openssl/include, then in standard header locations such as
+   /usr/include. Configure will also look for Xerces-C headers, first in
+   /usr/local/xerces/include, then in standard locations.
+   
+   You can specify different paths for Xerces-C and OpenSSL using:
+ 
+   ./configure  --with-xerces-c=path/to/xerces 
+                --with-openssl=/path/to/openssl
+
+   If configure fails to find your readline includes directory you can
+   use "--with-readline-includes=DIR" to tell it where to look for it.
+   Default path is "/usr/include".
+
+5) Run make. This will build the LIBEPP-NICBR libraries in the "lib"
+   directory.
+
+6) Run make check to test all the classes (*This requires CppUnit
+   installed).
+
+7) Run make doc to create the doxygen documentation (*This requires
+   Doxygen intalled).
+
+8) Run make install. This will install the LIBEPP-NICBR headers in
+   "PREFIX/include/libepp_nicbr", the library in "PREFIX/lib", shepp in
+   "PREFIX/bin" and the XML schemas and templates in
+   "PREFIX/share/libepp_nicbr". By default PREFIX is "/usr/local"
+   ("--prefix=DIR" configure option can be used to change it).

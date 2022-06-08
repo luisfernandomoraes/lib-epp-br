@@ -1,0 +1,3 @@
+/mnt/c/Users/Luis_/CLionProjects/libepp-api/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/Luis_/CLionProjects/libepp-api/cmake-build-debug/CMakeFiles/libepp_api.dir
+/mnt/c/Users/Luis_/CLionProjects/libepp-api/cmake-build-debug/CMakeFiles/edit_cache.dir

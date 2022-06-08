@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema targetNamespace="urn:ietf:params:xml:ns:asn-1.0"
+        xmlns:asn="urn:ietf:params:xml:ns:asn-1.0"
+        xmlns:brorg="urn:ietf:params:xml:ns:brorg-1.0"
+        xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+        xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified">
+
+  <!--
+      Import common element types.
+  -->
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0"
+          schemaLocation="eppcom-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:epp-1.0"
+          schemaLocation="epp-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:brorg-1.0"
+          schemaLocation="brorg-1.0.xsd"/>
+
+  <annotation>
+    <documentation>
+      Extensible Provisioning Protocol v1.0
+      Autonomous System Number schema.
+    </documentation>
+  </annotation>
+
+  <!--
+      Child elements found in EPP commands.
+  -->
+  <element name="check" type="asn:mIDType"/>
+  <element name="create" type="asn:createType"/>
+  <element name="delete" type="asn:sIDType"/>
+  <element name="info" type="asn:IDType"/>
+  <element name="transfer" type="asn:IDType"/>
+  <element name="update" type="asn:updateType"/>
+  <element name="renew" type="asn:renewType"/>
+
+  <!--
+      Utility types.
+  -->
+  <simpleType name="asnType">
+    <restriction base="unsignedInt">
+      <minInclusive value="1"/>
+    </restriction>
+  </simpleType>
+
+  <complexType name="contactType">
+    <simpleContent>
+      <extension base="eppcom:clIDType">
+        <attribute name="type" type="asn:contactAttrType"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <simpleType name="contactAttrType">
+    <restriction base="token">
+      <enumeration value="routing"/>
+      <enumeration value="security"/>
+    </restriction>
+  </simpleType>
+
+  <complexType name="periodType">
+    <simpleContent>
+      <extension base="asn:pLimitType">
+        <attribute name="unit" type="asn:pUnitType"
+         use="required"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <simpleType name="pLimitType">
+    <restriction base="unsignedShort">
+      <minInclusive value="1"/>
+      <maxInclusive value="99"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="pUnitType">
+    <restriction base="token">
+      <enumeration value="y"/>
+      <enumeration value="m"/>
+    </restriction>
+  </simpleType>
+
+  <!--
+      Child elements of the <create> command.
+  -->
+  <complexType name="createType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="contact" type="asn:contactType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+     
+  <!--
+      Child element of commands that require only an identifier.
+  -->
+  <complexType name="sIDType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child element of commands that accept multiple identifiers.
+  -->
+  <complexType name="mIDType">
+    <sequence>
+      <element name="number" type="asn:asnType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child elements of the <info> and <transfer> commands.
+  -->
+  <complexType name="IDType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child elements of the <update> command.
+  -->
+  <complexType name="updateType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+      <element name="add" type="asn:addRemType"
+       minOccurs="0"/>
+      <element name="rem" type="asn:addRemType"
+       minOccurs="0"/>
+      <element name="chg" type="asn:chgType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Data elements that can be added or removed.
+  -->
+  <complexType name="addRemType">
+    <sequence>
+      <element name="contact" type="asn:contactType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Data elements that can be changed.
+  -->
+  <complexType name="chgType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"
+       minOccurs="0"/>
+      <element name="contact" type="asn:contactType" minOccurs="0"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child elements of the <renew> command.
+  -->
+  <complexType name="renewType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+      <element name="curExpDate" type="dateTime"/>
+      <element name="period" type="asn:periodType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child response elements.
+  -->
+  <element name="chkData" type="asn:chkDataType"/>
+  <element name="creData" type="asn:creDataType"/>
+  <element name="infData" type="asn:infDataType"/>
+  <element name="panData" type="asn:panDataType"/>
+  <element name="trnData" type="asn:trnDataType"/>
+  <element name="renData" type="asn:renDataType"/>
+
+  <!--
+      <check> response elements.
+  -->
+  <complexType name="chkDataType">
+    <sequence>
+      <element name="cd" type="asn:checkType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="checkType">
+    <sequence>
+      <element name="number" type="asn:checkIDType"/>
+      <element name="reason" type="eppcom:reasonType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="checkIDType">
+    <simpleContent>
+      <extension base="asn:asnType">
+        <attribute name="avail" type="boolean"
+         use="required"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <!--
+      <create> response elements.
+  -->
+  <complexType name="creDataType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+      <element name="roid" type="eppcom:roidType"/>
+      <element name="crDate" type="dateTime"/>
+      <element name="exDate" type="dateTime"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      <info> response elements.
+  -->
+  <complexType name="infDataType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+      <element name="roid" type="eppcom:roidType"/>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="contact" type="asn:contactType"
+       maxOccurs="unbounded"/>
+      <element name="clID" type="eppcom:clIDType"/>
+      <element name="crID" type="eppcom:clIDType"
+       minOccurs="0"/>
+      <element name="crDate" type="dateTime"
+       minOccurs="0"/>
+      <element name="exDate" type="dateTime"
+       minOccurs="0"/>
+      <element name="upID" type="eppcom:clIDType"
+       minOccurs="0"/>
+      <element name="upDate" type="dateTime"
+       minOccurs="0"/>
+      <element name="trDate" type="dateTime"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Pending action notification response elements.
+  -->
+  <complexType name="panDataType">
+    <sequence>
+      <element name="number" type="asn:paASNType"/>
+      <element name="paTRID" type="epp:trIDType"/>
+      <element name="paDate" type="dateTime"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="paASNType">
+    <simpleContent>
+      <extension base="asn:asnType">
+        <attribute name="paResult" type="boolean"
+         use="required"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <!--
+      <renew> response elements.
+  -->
+  <complexType name="renDataType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+      <element name="exDate" type="dateTime"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      <transfer> response elements.
+  -->
+  <complexType name="trnDataType">
+    <sequence>
+      <element name="number" type="asn:asnType"/>
+      <element name="trStatus" type="eppcom:trStatusType"/>
+      <element name="reID" type="eppcom:clIDType"/>
+      <element name="reDate" type="dateTime"/>
+      <element name="acID" type="eppcom:clIDType"/>
+      <element name="acDate" type="dateTime"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      End of schema.
+  -->
+</schema>

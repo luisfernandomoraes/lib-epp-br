@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema targetNamespace="urn:ietf:params:xml:ns:brorg-1.0"
+        xmlns:contact="urn:ietf:params:xml:ns:contact-1.0"
+        xmlns:brorg="urn:ietf:params:xml:ns:brorg-1.0"
+        xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+        xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified">
+  
+  <!--
+      Import common element types
+  -->
+  <import namespace="urn:ietf:params:xml:ns:epp-1.0"
+          schemaLocation="epp-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0"
+          schemaLocation="eppcom-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:contact-1.0"
+          schemaLocation="contact-1.0.xsd"/>
+  
+  <annotation>
+    <documentation>
+      Extensible Provisioning Protocol v1.0
+      .br organizational social information schema
+    </documentation>
+  </annotation>
+  
+  <!--
+      Global elements
+  -->
+  <simpleType name="orgIDType">
+    <restriction base="token">
+      <minLength value="1"/>
+      <maxLength value="30"/>
+    </restriction>
+  </simpleType>
+  
+  <complexType name="contactType">
+    <simpleContent>
+      <extension base="eppcom:clIDType">
+        <attribute name="type" type="brorg:contactAttrType"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+  
+  <simpleType name="contactAttrType">
+    <restriction base="token">
+      <enumeration value="admin"/>
+      <enumeration value="billing"/>
+      <enumeration value="member"/>
+    </restriction>
+  </simpleType>
+  
+  <complexType name="mContactType">
+    <sequence>
+      <element name="contact" type="brorg:contactType"
+       minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="chgType">
+    <sequence>
+      <element name="responsible" type="contact:postalLineType"
+       minOccurs="0"/>
+      <element name="exDate" type="dateTime"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="checkType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType"/>
+      <element name="organization" type="brorg:orgIDType"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="ticketInfoType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="ticketNumber" type="unsignedInt"/>
+      <element name="domainName" type="eppcom:labelType"/>
+    </sequence>    
+  </complexType>
+
+  <complexType name="ipRangeType">
+    <sequence>
+      <element name="startAddress" type="token"/>
+      <element name="endAddress" type="token"/>
+    </sequence>
+    <attribute name="version" type="brorg:versionEnumType"/>
+  </complexType>
+  
+  <simpleType name="versionEnumType">
+    <restriction base="token">
+      <enumeration value="v4"/>
+      <enumeration value="v6"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="asnType">
+    <restriction base="unsignedInt">
+      <minInclusive value="1"/>
+    </restriction>
+  </simpleType>
+
+  <!--
+      Child elements found in EPP commands.
+  -->
+  <element name="check" type="brorg:mIDType"/>
+  <element name="create" type="brorg:createType"/>
+  <element name="info" type="brorg:sIDType"/>
+  <element name="update" type="brorg:updateType"/>
+  
+  <!--
+      Child elements of the <check> command.
+  -->
+  <complexType name="mIDType">
+    <sequence>
+      <element name="cd" type="brorg:checkType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      Child elements of the <create> command.
+  -->
+  <complexType name="createType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="contact" type="brorg:contactType"
+       maxOccurs="unbounded"/>
+      <element name="responsible" type="contact:postalLineType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      Child elements of the <info> command.
+  -->
+  <complexType name="sIDType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      Child elements of the <update> command
+  -->
+  <complexType name="updateType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="add" type="brorg:mContactType"
+       minOccurs="0"/>
+      <element name="rem" type="brorg:mContactType"
+       minOccurs="0"/>
+      <element name="chg" type="brorg:chgType" minOccurs="0"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      Child response elements.
+  -->
+  <element name="chkData" type="brorg:chkDataType"/>
+  <element name="creData" type="brorg:creDataType"/>
+  <element name="infData" type="brorg:infDataType"/>
+  <element name="panData" type="brorg:panDataType"/>
+  
+  <!--
+      <check> response elements.
+  -->
+  <complexType name="chkDataType">
+    <sequence>
+      <element name="ticketInfo" type="brorg:ticketInfoType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      <create> response elements.
+  -->
+  <complexType name="creDataType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      <info> response elements.
+  -->
+  <complexType name="infDataType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="contact" type="brorg:contactType"
+       maxOccurs="unbounded"/>
+      <element name="responsible" type="contact:postalLineType"
+       minOccurs="0"/>
+      <element name="proxy" type="brorg:orgIDType"
+       minOccurs="0"/>
+      <element name="exDate" type="dateTime"
+       minOccurs="0"/>
+      <element name="domainName" type="eppcom:labelType"
+       minOccurs="0" maxOccurs="unbounded"/>
+      <element name="asNumber" type="brorg:asnType"
+       minOccurs="0" maxOccurs="unbounded"/>
+      <element name="ipRange" type="brorg:ipRangeType"
+       minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Pending action notification response elements
+  -->
+  <complexType name="panDataType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="reason" type="epp:msgType" minOccurs="0"/>
+    </sequence>
+  </complexType>
+</schema>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema targetNamespace="urn:ietf:params:xml:ns:brdomain-1.0"
+	xmlns:brdomain="urn:ietf:params:xml:ns:brdomain-1.0"
+	xmlns:brorg="urn:ietf:params:xml:ns:brorg-1.0"
+	xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+	xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+  
+  <!--
+      Import common element types
+  -->
+  <import namespace="urn:ietf:params:xml:ns:epp-1.0"
+	  schemaLocation="epp-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0"
+	  schemaLocation="eppcom-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:brorg-1.0"
+	  schemaLocation="brorg-1.0.xsd"/>
+  
+  <annotation>
+    <documentation>
+      Extensible Provisioning Protocol v1.0
+      domain name extension schema for .br domain provisioning.
+    </documentation>
+  </annotation>
+  
+  <!--
+      Global elements
+  -->
+  <complexType name="pendingType">
+    <sequence>
+      <element name="doc" type="brdomain:pDocType" minOccurs="0"
+	       maxOccurs="4"/>
+      <element name="dns" type="brdomain:pDnsType" minOccurs="0"
+	       maxOccurs="5"/>
+      <element name="releaseProc" type="brdomain:pReleaseProcType"
+	       minOccurs="0" maxOccurs="1"/>
+    </sequence>
+  </complexType>
+  
+  <complexType name="pDocType">
+    <sequence>
+      <element name="docType" type="token"/>
+      <element name="limit" type="dateTime"/>
+      <element name="description" type="epp:msgType"/>
+    </sequence>
+    <attribute name="status" type="brdomain:pDocStatusType"
+	       use="required"/>
+  </complexType>
+  
+  <complexType name="pDnsType">
+    <sequence>
+      <element name="hostName" type="eppcom:labelType"
+	       minOccurs="0"/>
+      <element name="limit" type="dateTime"/>
+    </sequence>
+    <attribute name="status" type="brdomain:pDnsStatusType"
+	       use="required"/>
+  </complexType>
+  
+  <complexType name="pReleaseProcType">
+    <sequence>
+      <element name="limit" type="dateTime"/>
+    </sequence>
+    <attribute name="status" type="brdomain:pReleaseProcStatusType"
+	       use="required"/>
+  </complexType>
+  
+  <complexType name="releaseProcessFlagsType">
+    <attribute name="flag1" type="boolean"/>
+    <attribute name="flag2" type="boolean"/>
+    <attribute name="flag3" type="boolean"/>
+  </complexType>
+  
+  <complexType name="hostStatusType">
+    <sequence>
+      <element name="hostName" type="eppcom:labelType"/>
+      <element name="dnsAnswer" type="token"/>
+    </sequence>
+  </complexType>
+  
+  <simpleType name="pDocStatusType">
+    <restriction base="token">
+      <enumeration value="received"/>
+      <enumeration value="notReceived"/>
+      <enumeration value="invalid"/>
+      <enumeration value="incorrect"/>
+      <enumeration value="srfOk"/>
+      <enumeration value="srfTimeout"/>
+      <enumeration value="srfPending"/>
+      <enumeration value="srfSuspended"/>
+      <enumeration value="srfInapt"/>
+      <enumeration value="srfCanceled"/>
+      <enumeration value="srfNonexistent"/>
+      <enumeration value="srfNotRegular"/>
+    </restriction>
+  </simpleType>
+  
+  <simpleType name="pDnsStatusType">
+    <restriction base="token">
+      <enumeration value="authoritativeAnswer"/>
+      <enumeration value="queryTimeOut"/>
+      <enumeration value="nonAuthoritativeAnswer"/>
+      <enumeration value="unknownDomainName"/>
+      <enumeration value="unknownHostName"/>
+      <enumeration value="queryRefused"/>
+      <enumeration value="connectionRefused"/>
+      <enumeration value="canonicalName"/>
+      <enumeration value="soaVersionNotInSync"/>
+      <enumeration value="dnsProtocolLevelError"/>
+      <enumeration value="notInformed"/>
+      <enumeration value="dsOk"/>
+      <enumeration value="dsNotInformed"/>
+      <enumeration value="other"/>
+    </restriction>
+  </simpleType>
+  
+  <simpleType name="pReleaseProcStatusType">
+    <restriction base="token">
+      <enumeration value="resolved"/>
+      <enumeration value="waiting"/>
+      <enumeration value="denied"/>
+    </restriction>
+  </simpleType>
+  
+  <simpleType name="onHoldReasonType">
+    <restriction base="token">
+      <enumeration value="billing"/>
+      <enumeration value="courtOrder"/>
+      <enumeration value="registry"/>
+      <enumeration value="dns"/>
+      <enumeration value="invalidData"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="publicationFlagType">
+    <restriction base="token">
+      <enumeration value="published"/>
+      <enumeration value="waitingPublication"/>
+      <enumeration value="onHold"/>
+      <enumeration value="waitingWithdrawal"/>
+    </restriction>
+  </simpleType>
+
+  <complexType name="publicationStatusType">
+    <sequence>
+      <element name="onHoldReason" type="brdomain:onHoldReasonType"
+               minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+    <attribute name="publicationFlag"
+               type="brdomain:publicationFlagType"/>
+  </complexType>
+
+  <complexType name="autoRenewType">
+    <attribute name="active" type="boolean" use="required"/>
+  </complexType>
+
+  <!--
+      Child elements found in EPP commands.
+  -->
+  <element name="check" type="brdomain:mNameType"/>
+  <element name="create" type="brdomain:createType"/>
+  <element name="info" type="brdomain:infoType"/>
+  <element name="update" type="brdomain:updateType"/>
+  
+  <!--
+      Child elements of the <check> command.
+  -->
+  <complexType name="mNameType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      Child elements of the <create> command.
+  -->
+  <complexType name="createType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="releaseProcessFlags"
+	       type="brdomain:releaseProcessFlagsType"
+	       minOccurs="0"/>
+      <element name="autoRenew" type="brdomain:autoRenewType"
+               minOccurs="0"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      Child elements of the <info> command
+  -->
+  <complexType name="infoType">
+    <sequence>
+      <element name="ticketNumber" type="unsignedInt"
+	       minOccurs="0"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      Child elements of the <update> command
+  -->
+  <complexType name="updateType">
+    <sequence>
+      <element name="ticketNumber" type="unsignedInt"
+               minOccurs="0"/>
+      <element name="chg" type="brdomain:chgType"
+	       minOccurs="0"/>
+    </sequence>
+  </complexType>
+  
+  <complexType name="chgType">
+    <sequence>
+      <element name="releaseProcessFlags"
+	       type="brdomain:releaseProcessFlagsType"
+	       minOccurs="0"/>
+      <element name="autoRenew" type="brdomain:autoRenewType"
+               minOccurs="0"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      Child response elements.
+  -->
+  <element name="chkData" type="brdomain:chkDataType"/>
+  <element name="creData" type="brdomain:creDataType"/>
+  <element name="infData" type="brdomain:infDataType"/>
+  <element name="updData" type="brdomain:updDataType"/>
+  <element name="panData" type="brdomain:panDataType"/>
+  <element name="renData" type="brdomain:renDataType"/>
+  
+  <!--
+      <check> response elements.
+  -->
+  <complexType name="chkDataType">
+    <sequence>
+      <element name="cd" type="brdomain:checkType"
+	       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  
+  <complexType name="checkType">
+    <sequence>
+      <element name="name" type="eppcom:labelType"/>
+      <element name="equivalentName" type="eppcom:labelType"
+	       minOccurs="0"/>
+      <element name="organization" type="brorg:orgIDType"
+	       minOccurs="0"/>
+      <element name="ticketNumber" type="unsignedInt"
+	       minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+    <attribute name="hasConcurrent" type="boolean"/>
+    <attribute name="inReleaseProcess" type="boolean"/>
+  </complexType>
+  
+  <!--
+      <create> response elements.
+  -->
+  <complexType name="creDataType">
+    <sequence>
+      <element name="ticketNumber" type="unsignedInt"
+	       minOccurs="0"/>
+      <element name="pending" type="brdomain:pendingType"
+	       minOccurs="0"/>
+      <element name="ticketNumberConc" type="unsignedInt"
+               minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      <info> response elements.
+  -->
+  <complexType name="infDataType">
+    <sequence>
+      <element name="ticketNumber" type="unsignedInt"
+	       minOccurs="0"/>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="releaseProcessFlags"
+	       type="brdomain:releaseProcessFlagsType"
+	       minOccurs="0"/>
+      <element name="hostStatus" type="brdomain:hostStatusType"
+	       minOccurs="0"/>
+      <element name="pending" type="brdomain:pendingType"
+	       minOccurs="0"/>
+      <element name="ticketNumberConc" type="unsignedInt"
+	       minOccurs="0" maxOccurs="unbounded"/>
+      <element name="publicationStatus"
+               type="brdomain:publicationStatusType"
+               minOccurs="0"/>
+      <element name="autoRenew" type="brdomain:autoRenewType"
+               minOccurs="0"/>
+    </sequence>
+  </complexType>
+  
+  <!--
+      <update> response elements
+  -->
+  <complexType name="updDataType">
+    <sequence>
+      <element name="ticketNumber" type="unsignedInt"
+	       minOccurs="0"/>
+      <element name="pending" type="brdomain:pendingType"
+	       minOccurs="0"/>
+      <element name="hostStatus" type="brdomain:hostStatusType"
+	       minOccurs="0"/>
+      <element name="publicationStatus"
+               type="brdomain:publicationStatusType"
+               minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Pending action notification response elements
+  -->
+  <complexType name="panDataType">
+    <sequence>
+      <element name="ticketNumber" type="unsignedInt"/>
+      <element name="reason" type="epp:msgType" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      <renew> response elements
+  -->
+  <complexType name="renDataType">
+    <sequence>
+      <element name="publicationStatus"
+               type="brdomain:publicationStatusType"/>
+    </sequence>
+  </complexType>
+</schema>

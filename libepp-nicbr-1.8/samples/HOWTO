@@ -1,0 +1,423 @@
+LIBEPP-NICBR                                                                    
+Copyright
+
+
+HOWTO
+-----
+
+This file describes the steps followed in the test client program included
+in this same directory.
+
+Este programa descreve os passos seguidos pelo programa de teste cliente
+incluso neste mesmo diretório.
+
+
+Source Code - Código fonte
+--------------------------
+
+  1 #include <string>
+  2 #include <iostream>
+
+  3 #include "libepp_nicbr_cli.H"
+
+  4 #define   PORT_FILE    "../unit_test/SessionTestServer.port"
+
+
+  5 /***** To run this program: ***********
+  6        make
+  7        make test
+  8 *************************************/
+
+  9 using namespace std;
+ 10 LIBEPP_NICBR_NS_USE
+
+ 11 auto_ptr<Session> _session;
+ 12 auto_ptr<DomParser> _command_parser;   
+
+ 13 void connect() 
+ 14 {
+ 15   printf("Connecting to the server....");
+ 16   try { 
+ 17     _session->connect("../unit_test/client.pem", 
+ 18 		          "../unit_test/root.pem", 
+ 19 		          "client passphrase");
+
+ 20     printf("OK\n");
+ 21     printf("Receiving greeting from the server....");
+
+ 22     Greeting *greeting = _session->get_greeting();  
+
+ 23     printf("OK\n");
+ 24   } catch (const IoException &e) {
+ 25     printf("\nIO Exception: \ncode [%d]\n message [%s]\n", 
+ 26 	   e.get_code(), e.get_msg().c_str());
+ 27   } catch (const TransportException &e) {
+ 28     printf("\nTransport Exception: \ncode [%d]\n message [%s] \n "
+ 29 	   "low level message [%s]\n", e.get_code(), e.get_msg().c_str(), 
+ 30 	   e.get_low_level_msg().c_str());
+ 31   } catch (const GeneralException &e) {
+ 32     printf("\nGeneral Exception: \ncode [%d]\n message [%s]\n", 
+ 33 	   e.get_code(), e.get_msg().c_str());
+ 34   }
+ 35   
+ 36 }
+
+ 37 void login() 
+ 38 {
+ 39   printf("Sending login command....");
+ 40   
+ 41   try {
+ 42     Login my_login;
+ 43     LoginCmd *login_cmd = my_login.get_command();
+
+ 44     login_cmd->set_clID("ClientX");
+ 45     login_cmd->set_pw("foo-BAR2");
+ 46     login_cmd->set_new_pw("bar-FOO2");
+
+ 47     string cmd_clTRID = "ABC-12345";
+ 48     _session->process_action(&my_login, cmd_clTRID);
+
+ 49     Response *login_resp = my_login.get_response();
+
+ 50     printf("OK\n");
+ 51   } catch (const EppException &e) {
+ 52     printf("\nEpp Exception: code [%d] message [%s]\n", 
+ 53 	   e.get_code(), e.get_msg().c_str());  
+ 54   } catch (const IoException &e) {
+ 55     printf("\nTransport Exception: code [%d] message [%s]\n", 
+ 56 	   e.get_code(), e.get_msg().c_str());
+ 57   } catch (const TransportException &e) {
+ 58     printf("\nTransport Exception: \ncode [%d]\n message [%s] \n "
+ 59 	   "low level message [%s]\n", e.get_code(), e.get_msg().c_str(), 
+ 60 	   e.get_low_level_msg().c_str());
+ 61   } catch (const GeneralException &e) {
+ 62     printf("\nGeneral Exception: code [%d] message [%s]\n", 
+ 63 	   e.get_code(), e.get_msg().c_str());
+ 64   } 
+ 65   
+ 66 }
+
+ 67 void create_contact() 
+ 68 {
+ 69   printf("Sending a contact create command....");
+
+ 70   try {
+ 71     ContactCreate my_contact_create;
+ 72     ContactCreateCmd *contact_create_cmd = my_contact_create.get_command();
+
+ 73     CommonData common_data;
+
+ 74     common_data.set_id("sh8013");
+ 75     
+ 76     PostalInfo postal_info; 
+ 77     postal_info.set_type("int");
+ 78     postal_info.set_name("John Doe");
+ 79     postal_info.set_org("Example Inc.");
+ 80     postal_info.set_str1("123 Example Dr.");
+ 81     postal_info.set_str2("Suite 100");
+ 82     postal_info.set_str3("");
+ 83     postal_info.set_city("Dulles");
+ 84     postal_info.set_sp("VA");
+ 85     postal_info.set_pc("20166-6503");
+ 86     postal_info.set_cc("US");
+
+ 87     common_data.insert_postal_info(postal_info);
+
+ 88     CommonData::Phone phone;
+ 89     phone.ext = "1234";
+ 90     phone.number = "+1.7035555555";
+ 91     common_data.set_voice(phone);
+
+ 92     phone.ext = "";
+ 93     phone.number = "+1.7035555556";
+ 94     common_data.set_fax(phone);
+
+ 95     string email = "jdoe@example.com";
+ 96     common_data.set_email(email);
+ 97     
+ 98     AuthInfo authInfo;
+ 99     authInfo.set_roid("");
+100     authInfo.set_pw("2fooBAR");
+101     contact_create_cmd->set_authInfo(authInfo);
+
+102     CommonData::Disclose disclose;
+103     disclose.name_int = true;
+104     common_data.set_disclose(disclose);
+
+105     contact_create_cmd->set_common_data(common_data);
+
+106     string cmd_clTRID = "ABC-12345";
+107     _session->process_action(&my_contact_create, cmd_clTRID);
+
+108     ContactCreateRsp *contact_create_resp = my_contact_create.get_response();
+
+109     printf("OK\n");
+110   } catch (const EppException &e) {
+111     printf("\nEpp Exception: code [%d] message [%s]\n", 
+112 	   e.get_code(), e.get_msg().c_str());  
+113   } catch (const GeneralException &e) {
+114     printf("\nGeneral Exception: code [%d] message [%s]\n", 
+115 	   e.get_code(), e.get_msg().c_str());
+116   }
+117   
+118 }
+
+119 void hello()
+120 {
+121   printf("Sending a hello command....");
+122  
+123   try {
+124     _session->send_hello();
+125     
+126     Greeting *greeting = _session->get_greeting();  
+127     
+128     printf("OK\n");
+129     
+130   } catch (const EppException &e) {
+131     printf("\nEpp Exception: code [%d] message [%s]\n", 
+132 	   e.get_code(), e.get_msg().c_str());  
+133   } catch (const GeneralException &e) {
+134     printf("\nGeneral Exception: code [%d] message [%s]\n", 
+135 	   e.get_code(), e.get_msg().c_str());
+136   }
+137 }
+
+138 void logout() 
+139 {
+140   printf("Sending logout command....");
+141   try {
+142     Logout my_logout;
+143     string cmd_clTRID = "ABC-12345";
+
+144     _session->process_action(&my_logout, cmd_clTRID);
+145     
+146     Response *logout_rsp = my_logout.get_response();
+
+147     printf("OK\n");
+148   } catch (const EppException &e) {
+149     printf("\nEpp Exception: code [%d] message [%s]\n", 
+150 	   e.get_code(), e.get_msg().c_str());  
+151   } catch (const XmlException &e) {
+152     printf("\nXML Exception: code [%d] message [%s]\n", 
+153 	   e.get_code(), e.get_msg().c_str());
+154   } catch (const IoException &e) {
+155     printf("\nTransport Exception: code [%d] message [%s]\n", 
+156 	   e.get_code(), e.get_msg().c_str());
+157   } catch (const TransportException &e) {
+158     printf("\nTransport Exception: \ncode [%d]\n message [%s] \n "
+159 	   "low level message [%s]\n", e.get_code(), e.get_msg().c_str(), 
+160 	   e.get_low_level_msg().c_str());
+161   } catch (const GeneralException &e) {
+162     printf("\nGeneral Exception: code [%d] message [%s]\n", 
+163 	   e.get_code(), e.get_msg().c_str());
+164   } 
+165   
+166 }
+
+167 int main(int argc, char **argv) {
+
+168   int port;
+169   FILE *fd = fopen(PORT_FILE, "r");
+170   if (fd == NULL) {
+171     printf("File %s not found\n", PORT_FILE);
+172     return 0;
+173   }
+174   fscanf(fd, "%d", &port);
+175   fclose(fd);
+176   const string server = "localhost";
+177   try {
+
+178     _session = auto_ptr<Session>(new Session(server, port));
+
+179     _session->enable_xml_validation();
+
+180     connect();
+
+181     login();
+
+182     create_contact();
+
+183     hello();
+
+184     logout();
+185  } catch (const GeneralException &e) {
+186    printf("\nGeneral Exception: code [%d] message [%s]\n", 
+187 	  e.get_code(), e.get_msg().c_str());
+188  }
+189  return 0;
+190 }
+
+
+Code Steps Description - Descrição dos passos do código
+-------------------------------------------------------
+
+
+English Version
+---------------
+
+*************************** IMPORTANT *******************************
+ The ../unit_test/SessionTestServer program must be started before 
+ run this client!!!
+*********************************************************************
+
+1-2	Include the headers to  manipulate strings and IO
+
+3	Include our own header that includes all library headers 
+
+4	Define the path for the port file
+
+9	Include the namespace std
+
+10	Include the library namespace libepp_nicbr
+
+11-12	Create auto pointers to Session and DomParser objects
+
+13	Connects to the server
+
+17	Open the connection using a certificate
+
+22	Get the greeting from the server
+
+37	Send a login command to the server
+
+42-43	Command(arguments)
+
+44-46	Set the attributes for login command
+
+47-48	Process Action Login
+
+49	Get the response from the server
+
+67	Create a contact object
+
+71-72	Command(arguments)
+
+73-105	Set the attributes for contact_create command
+
+106-107	Process Action Create Contact
+
+108	Get the response from the server
+
+119	Send a hello command to the server
+
+124	Action Hello does not have Command(arguments)
+
+126	Get the greeting from the server
+
+138	Send a logout command to the server
+
+142	Action Logout does not have Command(arguments)
+
+143-144	Process Action Logout
+
+146	Get the response from the server
+
+168-175	Get the port number from SessionTestServer.port file
+
+178	Create a new session, pointing to the server address, the server port 
+	and the xml templates path for the EPP commands. The default parameters 
+	to this is server=localhost, port=700 and path to xml templates=
+	TEMPLATESDIR. If you want use the default values you dont need use the 
+	parameters, otherwhise its necessary to use the parameters with the 
+	other values.
+
+179	Enable xml validation (Xerces Validator), pointing to the schemas path
+	(the default is disable the validator after the client development)
+
+180	Connect to the server
+
+181	Send a login command to authentication
+
+182	Send a create_contact command
+
+183	Send a hello command to get a new greeting from the server
+
+184	Send a logout command to close the session
+
+
+
+Versão em português
+-------------------
+
+*************************** IMPORTANTE************************************
+ O programa ../unit_test/SessionTestServer deve ser rodado antes deste 
+ programa de teste cliente!!!
+**************************************************************************
+
+1-2	Inclui os headers para manipular string e IO
+
+3	Include nosso próprio header o qual inclui todos os demais headers
+
+4	Define o caminho para o arquivo que contém a porta onde o servidor 
+	está rodando
+
+9	Inclui o namespace std
+
+10	Inclui o namespace da biblioteca libepp_nicbr
+
+11-12	Cria auto pointers para os objetos Session e DomParser
+
+13	Conecta ao servidor
+
+17	Abre a conexão usando um certificado
+
+22	Recebe o greeting do servidor
+
+37	Envia um comando login ao servidor
+
+42-43	Argumentos de comando
+
+44-46	Seta os atributos do comando login
+
+47-48	Processa o comando Login
+
+49	Recebe a resposta do servidor
+
+67	Cria um objeto contato
+
+71-72	Argumentos de comando
+
+73-105	Seta os atributos do comando contact_create
+
+106-107	Processa o comando Create Contact
+
+108	Recebe a resposta do servidor
+
+119	Envia um comando hello ao servidor
+
+124	Hello não possui argumentos de comando
+
+126	Recebe o greeting do servidor
+
+138	Envia um comando logout ao servidor
+
+142	Logout não possui argumentos de comando
+
+143-144	Processa o comando Logout
+
+146	Recebe a resposta do servidor
+
+168-175	Lê a porta onde está rodando o servidor que se encontra
+	no arquivo SessionTestServer.port
+
+178	Instancializa uma sessão apontando o endereço do servidor,
+	a porta onde o servidor está rodando e o path para os templates 
+	xml dos comandos EPP. Os parâmetros default são server=localhost,
+	port=700 e path para os templates xml=TEMPLATESDIR. Caso use os 
+	defaults não é necessário passá-los como parâmetro, caso contrário
+	deve-se indicar os novos valores explicitamente passando-os como 
+	parâmetros.
+
+179	Habilita a validação xml (Xerces Validator), apontando o path
+	de onde estão os schemas (o default é manter a validação desabilitada
+	num sistema em produção)
+
+180	Conecta ao servidor
+
+181	Envia um login para se autenticar no servidor
+
+182	Cria um contato
+
+183	Envia um hello para receber um novo greeting do servidor
+
+184	Envia um logout para fechar a sessão com o servidor

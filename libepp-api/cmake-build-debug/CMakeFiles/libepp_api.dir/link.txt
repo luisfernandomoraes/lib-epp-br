@@ -1,0 +1,1 @@
+/usr/bin/c++  -g  -rdynamic CMakeFiles/libepp_api.dir/main.cpp.o  -o libepp_api /usr/local/lib/libepp-nicbr-1.18.a -lxerces-c /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so 

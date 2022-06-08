@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema targetNamespace="urn:ietf:params:xml:ns:ipnetwork-1.0"
+        xmlns:ipnetwork="urn:ietf:params:xml:ns:ipnetwork-1.0"
+        xmlns:asn="urn:ietf:params:xml:ns:asn-1.0"
+        xmlns:brorg="urn:ietf:params:xml:ns:brorg-1.0"
+        xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+        xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified">
+
+  <!--
+      Import common element types
+  -->
+  <import namespace="urn:ietf:params:xml:ns:epp-1.0"
+          schemaLocation="epp-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0"
+          schemaLocation="eppcom-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:asn-1.0"
+          schemaLocation="asn-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:brorg-1.0"
+          schemaLocation="brorg-1.0.xsd"/>
+
+  <annotation>
+    <documentation>
+      Extensible Provisioning Protocol v1.0
+      IP range provisioning schema.
+    </documentation>
+  </annotation>
+
+  <!--
+      Child elements found in EPP commands.
+  -->
+  <element name="check" type="ipnetwork:chkType"/>
+  <element name="create" type="ipnetwork:createType"/>
+  <element name="delete" type="ipnetwork:roidType"/>
+  <element name="info" type="ipnetwork:infoType"/>
+  <element name="transfer" type="ipnetwork:roidType"/>
+  <element name="update" type="ipnetwork:updateType"/>
+  <element name="renew" type="ipnetwork:renewType"/>
+
+  <!-- 
+       Child elements of the <check> command.
+  -->
+  <complexType name="chkType">
+    <sequence>
+      <element name="ipRange" type="ipnetwork:ipRangeType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <!--
+  -->
+  <complexType name="ipRangeType">
+    <sequence>
+      <element name="startAddress" type="token"/>
+      <element name="endAddress" type="token"/>
+    </sequence>
+    <attribute name="version" type="ipnetwork:versionEnumType"/>
+  </complexType>
+
+  <simpleType name="versionEnumType">
+    <restriction base="token">
+      <enumeration value="v4"/>
+      <enumeration value="v6"/>
+    </restriction>
+  </simpleType>
+
+  <!--
+      Child elements of the <create> command.
+  -->
+  <complexType name="createType">
+    <sequence>
+      <element name="ipRange" type="ipnetwork:ipRangeType"/>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="allocType" type="ipnetwork:ipAllocationType"
+       minOccurs="0"/>
+      <element name="asn" type="asn:asnType"
+       minOccurs="0"/>
+      <element name="contact" type="ipnetwork:contactType"
+       minOccurs="0" maxOccurs="unbounded"/>
+      <element name="reverseDNS" type="ipnetwork:reverseDNSType"
+       minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <simpleType name="ipAllocationType">
+    <restriction base="token">
+      <enumeration value="allocation"/>
+      <enumeration value="assignment"/>
+      <enumeration value="reservation"/>
+    </restriction>
+  </simpleType>
+
+  <complexType name="contactType">
+    <simpleContent>
+      <extension base="eppcom:clIDType">
+        <attribute name="type" type="ipnetwork:contactAttrType"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <simpleType name="contactAttrType">
+    <restriction base="token">
+      <enumeration value="abuse"/>
+      <enumeration value="admin"/>
+      <enumeration value="tech"/>
+    </restriction>
+  </simpleType>
+
+  <complexType name="reverseDNSType">
+    <sequence>
+      <element name="ipRange" type="ipnetwork:ipRangeType"/>
+      <element name="hostName" type="eppcom:labelType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child element of commands that require a single object
+  -->
+  <complexType name="roidType">
+    <sequence>
+      <element name="roid" type="eppcom:roidType"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child elements of the <info> command
+  -->
+  <complexType name="infoType">
+    <sequence>
+      <element name="ipRange" type="ipnetwork:ipRangeType"/>
+      <element name="roid" type="eppcom:roidType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child elements of the <update> command
+  -->
+  <complexType name="updateType">
+    <sequence>
+      <element name="roid" type="eppcom:roidType"/>
+      <element name="add" type="ipnetwork:addRemType"
+       minOccurs="0"/>
+      <element name="rem" type="ipnetwork:addRemType"
+       minOccurs="0"/>
+      <element name="chg" type="ipnetwork:chgType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Data elements that can be added or removed.
+  -->
+  <complexType name="addRemType">
+    <sequence>
+      <element name="reverseDNS" type="ipnetwork:reverseDNSType"
+       minOccurs="0" maxOccurs="unbounded"/>
+      <element name="contact" type="ipnetwork:contactType"
+       minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Data elements that can be changed.
+  -->
+  <complexType name="chgType">
+    <sequence>
+      <element name="organization" type="brorg:orgIDType"
+       minOccurs="0"/>
+      <element name="allocType" type="ipnetwork:ipAllocationType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child elements of the <renew> command
+  -->
+  <complexType name="renewType">
+    <sequence>
+      <element name="roid" type="eppcom:roidType"/>
+      <element name="curExpDate" type="dateTime"/>
+      <element name="period" type="asn:periodType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Child response elements
+  -->
+  <element name="chkData" type="ipnetwork:chkDataType"/>
+  <element name="creData" type="ipnetwork:creDataType"/>
+  <element name="infData" type="ipnetwork:infDataType"/>
+  <element name="panData" type="ipnetwork:panDataType"/>
+  <element name="trnData" type="ipnetwork:trnDataType"/>
+  <element name="renData" type="ipnetwork:renDataType"/>
+
+  <!--
+      <check> response elements.
+  -->
+  <complexType name="chkDataType">
+    <sequence>
+      <element name="cd" type="ipnetwork:checkType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="checkType">
+    <sequence>
+      <element name="ipRange" type="ipnetwork:checkIpRangeType"/>
+      <element name="reason" type="eppcom:reasonType"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="checkIpRangeType">
+    <sequence>
+      <element name="startAddress" type="token"/>
+      <element name="endAddress" type="token"/>
+    </sequence>
+    <attribute name="version" type="ipnetwork:versionEnumType"/>
+    <attribute name="avail" type="boolean"
+     use="required"/>
+  </complexType>
+
+  <!--
+      <create> response elements.
+  -->
+  <complexType name="creDataType">
+    <sequence>
+      <element name="ipRange" type="ipnetwork:ipRangeType"/>
+      <element name="roid" type="eppcom:roidType"/>
+      <element name="crDate" type="dateTime"/>
+      <element name="exDate" type="dateTime"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      <info> response elements.
+  -->
+  <complexType name="infDataType">
+    <sequence>
+      <element name="ipRange" type="ipnetwork:ipRangeType"/>
+      <element name="ipRangeInfo" type="ipnetwork:ipRangeInfoType"
+       maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="ipRangeInfoType">
+    <sequence>
+      <element name="roid" type="eppcom:roidType"/>
+      <element name="allocType" type="ipnetwork:ipAllocationType"/>
+      <element name="organization" type="brorg:orgIDType"/>
+      <element name="contact" type="ipnetwork:contactType"
+       maxOccurs="unbounded"/>
+      <element name="asn" type="asn:asnType"
+       minOccurs="0"/>
+      <element name="reverseDNS" type="ipnetwork:reverseDNSType"
+       minOccurs="0" maxOccurs="unbounded"/>
+      <element name="parentNetwork" type="ipnetwork:infoType"
+       minOccurs="0"/>
+      <element name="childNetwork" type="ipnetwork:infoType"
+       minOccurs="0" maxOccurs="unbounded"/>
+      <element name="clID" type="eppcom:clIDType"/>
+      <element name="crID" type="eppcom:clIDType"
+       minOccurs="0"/>
+      <element name="crDate" type="dateTime"
+       minOccurs="0"/>
+      <element name="exDate" type="dateTime"
+       minOccurs="0"/>
+      <element name="upID" type="eppcom:clIDType"
+       minOccurs="0"/>
+      <element name="upDate" type="dateTime"
+       minOccurs="0"/>
+      <element name="trDate" type="dateTime"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      <renew> response elements.
+  -->
+  <complexType name="renDataType">
+    <sequence>
+      <element name="roid" type="eppcom:roidType"/>
+      <element name="exDate" type="dateTime"
+       minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      <transfer> response elements.
+  -->
+  <complexType name="trnDataType">
+    <sequence>
+      <element name="roid" type="eppcom:roidType"/>
+      <element name="trStatus" type="eppcom:trStatusType"/>
+      <element name="reID" type="eppcom:clIDType"/>
+      <element name="reDate" type="dateTime"/>
+      <element name="acID" type="eppcom:clIDType"/>
+      <element name="acDate" type="dateTime"/>
+    </sequence>
+  </complexType>
+
+  <!--
+      Pending action notification response elements.
+  -->
+  <complexType name="panDataType">
+    <sequence>
+      <element name="ipRange" type="ipnetwork:paIpRangeType"/>
+      <element name="paTRID" type="epp:trIDType"/>
+      <element name="paDate" type="dateTime"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="paIpRangeType">
+    <complexContent>
+      <extension base="ipnetwork:ipRangeType">
+        <attribute name="paResult" type="boolean"
+         use="required" />
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
+      End of schema.
+  -->
+</schema>
